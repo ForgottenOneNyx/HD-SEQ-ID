@@ -370,12 +370,25 @@ def hd_seq_id(input_dir,output_dir,models_folder):
         mid_image_nib = nibabel.load(output3d_images[k])
         
 
-        out_newname = re.sub('.nii.gz','_'+dict_labels[predictions_list[k]]+'.nii.gz',re.sub(input_dir,output_dir,output3d_images[k])) 
+        out_newname = re.sub('.nii.gz','____'+dict_labels[predictions_list[k]]+'.nii.gz',re.sub(input_dir,output_dir,output3d_images[k])) 
 
 
         try:
             nibabel.save(mid_image_nib, out_newname)
+            
+            str_label_list = [dict_labels[x] for x in predictions_list]
+            output_list = [os.path.basename(base) for base in output3d_images]
+            df_pred = pd.DataFrame({"input":output_list,"predicted_label":str_label_list})
+            df_pred.to_csv((output_dir+"/"+"predictions.csv"), sep='\t')
+            print("   ")
+            print("Perictions are added as suffix to the end of the output file: *____<prediction>.nii.gz")
+            print("   ")
+            print("Please check the predictions.csv file in the output folder.")
+            print("   ")
             os.unlink(midslice_images[k])
+            os.unlink(output3d_images[k])
+
+
         except:
             print('an error occured by trying to save the image, check for corrupt files...')
 
@@ -426,13 +439,6 @@ if __name__ == "__main__":
     ### Start postprocessing ###
 
     hd_seq_id(input_dir,output_dir,models_folder) 
-            
-    
-
-
-
-
-
 
 
 
